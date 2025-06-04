@@ -1,5 +1,3 @@
-# CNTM-v--TPTM
-
 # 🗳️ HỆ THỐNG BỎ PHIẾU TỰ ĐỘNG BẰNG THẺ RFID SỬ DỤNG ESP32
 
 ## 📌 1. Giới thiệu chung
