@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RFID Voting Admin Panel</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <h1>RFID Voting Admin Dashboard</h1>
+
+  <div class="filter">
+    <input type="text" id="searchBox" placeholder="Tìm UID hoặc thời gian...">
+  </div>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>UID</th>
+        <th>Thời gian</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAqxCRiIKSJSPAgvRUIh7SclRFEHNsiBWCbDvNGkedOnrpbssCpTkFNi2jsxhBmgrZm_y0mlxPqVqo/pub?output=csv";
+
+    function doGet(e) {
+      var sheet = SpreadsheetApp.getActiveSheet();
+      var uid = e.parameter.uid;
+      var time = new Date();
+      var date = Utilities.formatDate(time, "GMT+7", "dd/MM/yyyy");
+      var hour = Utilities.formatDate(time, "GMT+7", "HH:mm:ss");
+      sheet.appendRow([date, hour, uid]);
+      return ContentService.createTextOutput("Success");
+    }
+
+
+    fetch(sheetURL)
+      .then(response => response.text())
+      .then(data => {
+        const rows = data.trim().split('\n');
+        const tbody = document.querySelector("#dataTable tbody");
+        for (let i = 1; i < rows.length; i++) {
+          const cols = rows[i].split(",");
+          if (cols.length >= 3) {
+            const uid = cols[2];
+            const timestamp = `${cols[0]} ${cols[1]}`;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${i}</td>
+              <td>${uid}</td>
+              <td>${timestamp}</td>
+            `;
+            tbody.appendChild(tr);
+          }
+        }
+      });
+
+    document.getElementById("searchBox").addEventListener("keyup", function () {
+      const filter = this.value.toUpperCase();
+      const rows = document.querySelectorAll("#dataTable tbody tr");
+      rows.forEach(row => {
+        const text = row.textContent.toUpperCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>
